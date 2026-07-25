@@ -108,7 +108,7 @@ export const usePatientStore = create<PatientStore>(() => ({
     glucoseMmolL: 5.4,
     weightKg: 82.5,
     bmi: 25.8,
-    lastUpdated: "2026-07-25T14:30:00Z",
+    lastUpdated: new Date().toISOString(), // P3-4 FIX: dynamic — not a hardcoded stale timestamp
   },
   insights: [
     {
@@ -179,7 +179,11 @@ export const usePatientStore = create<PatientStore>(() => ({
       radiologist: "Dr. Tarek El-Mansoury",
       vlmImpression: "MedGemma VLM Analysis: Mild bilateral basalar peribronchial thickening without focal consolidation. Cardiac silhouette is within normal limits.",
       segmentationFindings: "MedSAM 2.0 ROI Analysis: Lung fields 98.2% clear, cardiothoracic ratio (CTR) = 0.46 (Normal < 0.50).",
-      imageUrl: "https://images.unsplash.com/photo-1530497610245-94d3c16cda28?w=800",
+      // P0-5 FIX: Replaced Unsplash stock photo with a labeled SVG placeholder.
+      // A random stock X-ray image (images.unsplash.com) was being displayed as if it
+      // were the actual patient's clinical scan — a clinical data integrity violation.
+      // In production, this must be replaced with a presigned URL from the storage service.
+      imageUrl: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='800' height='600' viewBox='0 0 800 600'%3E%3Crect width='800' height='600' fill='%23111827'/%3E%3Crect x='200' y='100' width='400' height='400' rx='8' fill='%231f2937' stroke='%2306635d' stroke-width='2'/%3E%3Ctext x='400' y='280' font-family='monospace' font-size='14' fill='%2306635d' text-anchor='middle'%3EDEMO: Chest PA-Lateral%3C/text%3E%3Ctext x='400' y='310' font-family='monospace' font-size='12' fill='%234b5563' text-anchor='middle'%3EConnect storage service for actual scan%3C/text%3E%3C/svg%3E",
       dicomFileUrl: "/files/scans/chest_xray_pat8841.dcm",
     },
   ],

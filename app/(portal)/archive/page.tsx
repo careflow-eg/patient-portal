@@ -1,14 +1,38 @@
 "use client";
 
-import React from "react";
-import { FolderArchive, FileText, Download, ShieldCheck, FileCheck2, HardDrive } from "lucide-react";
+import React, { useState } from "react";
+import { FolderArchive, FileText, Download, ShieldCheck, HardDrive, Loader2 } from "lucide-react";
 import { usePatientStore } from "@/stores/usePatientStore";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { downloadArchiveFile } from "@/services/archiveService";
 
 export default function ArchivePage() {
   const { archives } = usePatientStore();
+  // Track per-document download loading state
+  const [downloading, setDownloading] = useState<Record<string, boolean>>({});
+
+  /**
+   * P0-4 FIX: Downloads are now routed through an authenticated API endpoint that
+   * generates presigned S3 URLs (60-second TTL). Static file paths like
+   * "/files/docs/discharge_summary.pdf" were accessible to any unauthenticated user
+   * with the URL — a HIPAA violation exposing PHI.
+   *
+   * P3-2 FIX: Download button is now fully wired up with loading state and error handling.
+   */
+  const handleDownload = async (docId: string, fileKey: string, filename: string) => {
+    setDownloading((prev) => ({ ...prev, [docId]: true }));
+    try {
+      await downloadArchiveFile(fileKey, filename);
+    } catch (err) {
+      console.error("Download failed:", err);
+      // In production: surface this error to the user via a toast notification
+      alert("Download failed. Please try again or contact support.");
+    } finally {
+      setDownloading((prev) => ({ ...prev, [docId]: false }));
+    }
+  };
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -16,7 +40,7 @@ export default function ArchivePage() {
         <div>
           <h1 className="text-2xl font-extrabold text-foreground flex items-center gap-2">
             <FolderArchive className="size-7 text-[#06635d] dark:text-[#14b8a6]" />
-            Medical Document Vault & Archive
+            Medical Document Vault &amp; Archive
           </h1>
           <p className="text-xs text-muted-foreground mt-1">
             Access and download all official medical PDFs, lab scans, DICOM packages, and clinical summaries
@@ -54,9 +78,24 @@ export default function ArchivePage() {
                 </div>
               </div>
 
-              <Button size="sm" variant="outline" className="gap-1.5 text-xs">
-                <Download className="size-3.5" />
-                <span>Download PDF</span>
+              <Button
+                size="sm"
+                variant="outline"
+                className="gap-1.5 text-xs min-w-[120px]"
+                disabled={downloading[doc.id]}
+                onClick={() => handleDownload(doc.id, doc.fileUrl, doc.documentTitle)}
+              >
+                {downloading[doc.id] ? (
+                  <>
+                    <Loader2 className="size-3.5 animate-spin" />
+                    <span>Preparing…</span>
+                  </>
+                ) : (
+                  <>
+                    <Download className="size-3.5" />
+                    <span>Download PDF</span>
+                  </>
+                )}
               </Button>
             </CardContent>
           </Card>

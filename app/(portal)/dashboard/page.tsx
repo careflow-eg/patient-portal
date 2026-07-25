@@ -141,8 +141,18 @@ export default function DashboardPage() {
             >
               <div className="flex items-center justify-between font-bold">
                 <span className="text-foreground">{ins.title}</span>
+                {/* P2-6 FIX: Proper 3-way severity mapping.
+                    Previously INFO and ATTENTION both mapped to "warning" — misleading.
+                    INFO = informational/neutral (outline), ATTENTION = caution (warning),
+                    NORMAL = positive/stable (success) */}
                 <Badge
-                  variant={ins.severity === "NORMAL" ? "success" : "warning"}
+                  variant={
+                    ins.severity === "NORMAL"
+                      ? "success"
+                      : ins.severity === "ATTENTION"
+                      ? "warning"
+                      : "outline"
+                  }
                   className="text-[10px]"
                 >
                   {ins.category}
