@@ -1,10 +1,12 @@
 "use client";
 
 import React from "react";
-import { FileText, Calendar, Stethoscope, Mic } from "lucide-react";
+import Link from "next/link";
+import { FileText, Calendar, Stethoscope, Mic, Bot } from "lucide-react";
 import { usePatientStore } from "@/stores/usePatientStore";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 
 export default function EncountersPage() {
   const { historyEncounters } = usePatientStore();
@@ -67,6 +69,13 @@ export default function EncountersPage() {
                 <p className="font-bold text-muted-foreground mb-1">Diagnosis & Clinical Summary:</p>
                 <p className="text-foreground font-medium">{enc.diagnosisSummary}</p>
               </div>
+
+              <Link href={`/encounters/${enc.id}/chat`}>
+                <Button variant="outline" size="sm" className="gap-1.5">
+                  <Bot className="size-3.5" />
+                  Ask the AI Assistant about this visit
+                </Button>
+              </Link>
             </CardContent>
           </Card>
         ))}
