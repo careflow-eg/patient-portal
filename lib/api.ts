@@ -1,74 +1,42 @@
 // API client with JWT auth and auto-refresh
 import axios, { AxiosInstance, InternalAxiosRequestConfig, AxiosError } from "axios";
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://api.cairflowai.health";
-const API_PREFIX = process.env.NEXT_PUBLIC_API_PREFIX ?? "/api/v1";
-
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://api.careflowai.health";
+const API_PREFIX = process.env.NEXT_PUBLIC_API_PREFIX || "/api/v1";
 
 export const api: AxiosInstance = axios.create({
   baseURL: `${BASE_URL.replace(/\/$/, "")}${API_PREFIX}`,
-
   headers: {
     "Content-Type": "application/json",
   },
-  timeout: 30000,
 });
 
-// Request interceptor — inject Bearer token
+// Request interceptor: Attach JWT token if present
 api.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
-    const token =
-      typeof window !== "undefined"
-        ? localStorage.getItem("access_token")
-        : null;
-    if (token && config.headers) {
-      config.headers.Authorization = `Bearer ${token}`;
+    if (typeof window !== "undefined") {
+      const token = localStorage.getItem("careflow_patient_access_token");
+      if (token && config.headers) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
     }
     return config;
   },
-  (error) => Promise.reject(error)
+  (error: AxiosError) => Promise.reject(error)
 );
 
-// Response interceptor — handle 401 and token refresh
+// Response interceptor: Redirect to login on 401 Unauthorized
 api.interceptors.response.use(
   (response) => response,
-  async (error: AxiosError) => {
-    if (error.response?.status === 401) {
-      // Clear tokens and redirect to login
-      if (typeof window !== "undefined") {
-        localStorage.removeItem("access_token");
-        localStorage.removeItem("refresh_token");
-        localStorage.removeItem("careflow_user");
-        
-        const pathname = window.location.pathname;
-        if (pathname !== "/login" && pathname !== "/register") {
-          window.location.href = "/login";
-        }
+  (error: AxiosError) => {
+    if (error.response?.status === 401 && typeof window !== "undefined") {
+      const pathname = window.location.pathname;
+      if (!pathname.startsWith("/login") && !pathname.startsWith("/register")) {
+        localStorage.removeItem("careflow_patient_access_token");
+        localStorage.removeItem("careflow_patient_refresh_token");
+        window.location.href = "/login?expired=1";
       }
     }
     return Promise.reject(error);
   }
 );
-
-// Helper for file uploads (multipart/form-data)
-export function createFormDataApi() {
-  const token =
-    typeof window !== "undefined"
-      ? localStorage.getItem("access_token")
-      : null;
-  return axios.create({
-    baseURL: `${BASE_URL.replace(/\/$/, "")}${API_PREFIX}`,
-    headers: {
-
-      "Content-Type": "multipart/form-data",
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    },
-    timeout: 300000, // 5 min for large file uploads
-  });
-}
-
-export interface ApiResponse<T> {
-  success: boolean;
-  message?: string;
-  data?: T;
-}
