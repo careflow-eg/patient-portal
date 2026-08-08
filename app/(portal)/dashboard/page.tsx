@@ -22,14 +22,16 @@ import { usePatientStore } from "@/stores/usePatientStore";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { AnimatedSection, AnimatedCard } from "@/components/layout/AnimatedWrapper";
 
 export default function DashboardPage() {
   const { patientName, mrn, age, gender, bloodType, allergies, vitals, insights, labResults, radiologyScans } =
     usePatientStore();
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-6">
       {/* Patient Header Vault Banner */}
+      <AnimatedSection>
       <div className="relative rounded-2xl p-6 md:p-8 overflow-hidden bg-gradient-to-r from-[#06635d] to-[#14b8a6] text-white shadow-xl">
         <div className="absolute -right-10 -bottom-10 size-60 rounded-full bg-white/10 blur-2xl pointer-events-none" />
 
@@ -57,8 +59,10 @@ export default function DashboardPage() {
           </div>
         </div>
       </div>
+      </AnimatedSection>
 
       {/* Vitals Summary Grid */}
+      <AnimatedSection>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {/* Heart Rate */}
         <Card className="glass-card">
@@ -124,8 +128,10 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
       </div>
+      </AnimatedSection>
 
       {/* AI Health Insights Section */}
+      <AnimatedSection>
       <Card className="glass-card">
         <CardHeader className="pb-2">
           <CardTitle className="text-base flex items-center gap-2">
@@ -163,8 +169,10 @@ export default function DashboardPage() {
           ))}
         </CardContent>
       </Card>
+      </AnimatedSection>
 
       {/* Highlights Grid */}
+      <AnimatedSection>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Lab Results Highlight */}
         <Card className="glass-card">
@@ -240,6 +248,7 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
       </div>
+      </AnimatedSection>
     </div>
   );
 }
