@@ -1,7 +1,17 @@
 // API client with JWT auth and auto-refresh
 import axios, { AxiosInstance, InternalAxiosRequestConfig, AxiosError } from "axios";
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://careflow-workflow-orchestrator.up.railway.app";
+/**
+ * Resolved at build time, with no production fallback — see doctor-portal/lib/api.ts.
+ * A missing variable must fail the build rather than silently reach live patient data.
+ */
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
+if (!BASE_URL) {
+  throw new Error(
+    "NEXT_PUBLIC_API_URL is not set. Copy .env.example to .env.local for local " +
+      "development, or set it in the deployment environment."
+  );
+}
 const API_PREFIX = "/api/v1";
 
 export const api: AxiosInstance = axios.create({
