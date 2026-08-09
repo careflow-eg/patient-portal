@@ -12,6 +12,7 @@ export default function ArchivePage() {
   const { archives } = usePatientStore();
   // Track per-document download loading state
   const [downloading, setDownloading] = useState<Record<string, boolean>>({});
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   /**
    * P0-4 FIX: Downloads are now routed through an authenticated API endpoint that
@@ -23,12 +24,12 @@ export default function ArchivePage() {
    */
   const handleDownload = async (docId: string, fileKey: string, filename: string) => {
     setDownloading((prev) => ({ ...prev, [docId]: true }));
+    setErrorMsg(null);
     try {
       await downloadArchiveFile(fileKey, filename);
     } catch (err) {
       console.error("Download failed:", err);
-      // In production: surface this error to the user via a toast notification
-      alert("Download failed. Please try again or contact support.");
+      setErrorMsg("Download failed. Please try again or contact support.");
     } finally {
       setDownloading((prev) => ({ ...prev, [docId]: false }));
     }
@@ -52,6 +53,12 @@ export default function ArchivePage() {
           <span>AES-256 Encrypted Archive</span>
         </Badge>
       </div>
+
+      {errorMsg && (
+        <div className="p-3 text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-xl">
+          {errorMsg}
+        </div>
+      )}
 
       <div className="space-y-3">
         {archives.map((doc) => (
