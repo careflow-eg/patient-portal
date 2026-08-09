@@ -82,7 +82,8 @@ export default function ArchivePage() {
                 size="sm"
                 variant="outline"
                 className="gap-1.5 text-xs min-w-[120px]"
-                disabled={downloading[doc.id]}
+                disabled={true}
+                title="Downloads are currently unavailable."
                 onClick={() => handleDownload(doc.id, doc.fileUrl, doc.documentTitle)}
               >
                 {downloading[doc.id] ? (
