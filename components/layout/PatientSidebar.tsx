@@ -101,14 +101,6 @@ export function PatientSidebar() {
           </div>
         </div>
 
-        {/* Security Badge Banner */}
-        <div className="mb-4 p-2.5 rounded-xl bg-[#06635d]/5 dark:bg-[#14b8a6]/10 border border-[#06635d]/20 flex items-center gap-2 text-xs">
-          <ShieldCheck className="size-4 text-[#06635d] dark:text-[#14b8a6] shrink-0" />
-          <span className="text-[11px] text-muted-foreground font-medium">
-            HIPAA Encrypted Patient Record
-          </span>
-        </div>
-
         {/* Main Navigation List */}
         <nav className="space-y-1">
           <p className="text-[10px] font-bold text-muted-foreground uppercase px-3 mb-2 tracking-wider">

@@ -27,10 +27,20 @@ export default function PortalLayout({
     const fetchMe = async () => {
       try {
         const user = await authService.getMe();
-        setPatientData({
-          patientName: user.full_name,
-          mrn: user.id.slice(0, 8).toUpperCase(), // fallback MRN
-        });
+        const res = await fetch("/api/patient/me");
+        if (res.ok) {
+          const patientData = await res.json();
+          setPatientData({
+            ...patientData,
+            patientName: user.full_name || patientData.patientName,
+            mrn: user.id.slice(0, 8).toUpperCase() || patientData.mrn,
+          });
+        } else {
+          setPatientData({
+            patientName: user.full_name,
+            mrn: user.id.slice(0, 8).toUpperCase(),
+          });
+        }
       } catch (err) {
         logout();
         router.push("/login");

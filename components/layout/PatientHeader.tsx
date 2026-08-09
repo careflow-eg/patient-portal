@@ -40,12 +40,6 @@ export function PatientHeader() {
           )}
         </Button>
 
-        {/* Security Badge */}
-        <Badge variant="outline" className="gap-1 hidden md:flex text-[11px] text-[#06635d] dark:text-[#14b8a6] border-[#06635d]/30">
-          <ShieldCheck className="size-3.5" />
-          <span>HIPAA Encrypted Vault</span>
-        </Badge>
-
         {/* Notification Bell */}
         <div className="relative">
           <Button variant="ghost" size="icon" className="text-muted-foreground dark:text-[#94a3b8] rounded-xl">
@@ -61,9 +55,6 @@ export function PatientHeader() {
           </div>
           <div className="hidden sm:block text-left">
             <p className="text-xs font-bold text-foreground leading-tight">{patientName}</p>
-            <p className="text-[10px] text-emerald-600 dark:text-emerald-400 font-medium">
-              ● Verified Patient Record
-            </p>
           </div>
         </div>
       </div>
