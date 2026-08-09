@@ -3,13 +3,17 @@
 import React from "react";
 import Link from "next/link";
 import { FileText, Calendar, Stethoscope, Mic, Bot } from "lucide-react";
-import { usePatientStore } from "@/stores/usePatientStore";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { useQuery } from "@tanstack/react-query";
+import { patientEncounterService } from "@/services/patientEncounterService";
 
 export default function EncountersPage() {
-  const { historyEncounters } = usePatientStore();
+  const { data: encounters, isLoading, isError } = useQuery({
+    queryKey: ["my-encounters"],
+    queryFn: () => patientEncounterService.getMyEncounters(),
+  });
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -26,7 +30,25 @@ export default function EncountersPage() {
       </div>
 
       <div className="space-y-4">
-        {historyEncounters.map((enc) => (
+        {isLoading && (
+          <div className="p-8 text-center text-muted-foreground animate-pulse">
+            Loading encounters...
+          </div>
+        )}
+
+        {isError && (
+          <div className="p-8 text-center text-red-500">
+            Failed to load encounters. The service might be unavailable.
+          </div>
+        )}
+
+        {encounters?.length === 0 && (
+          <div className="p-8 text-center text-muted-foreground border border-dashed rounded-xl">
+            No past consultations found.
+          </div>
+        )}
+
+        {encounters?.map((enc) => (
           <Card key={enc.id} className="glass-card hover:shadow-lg transition-all">
             <CardHeader className="flex flex-row items-center justify-between pb-2 border-b border-[#e2e8f0] dark:border-[#1e3a40]">
               <div className="flex items-center gap-3">
@@ -34,15 +56,15 @@ export default function EncountersPage() {
                   <Stethoscope className="size-5" />
                 </div>
                 <div>
-                  <CardTitle className="text-base">{enc.doctorName}</CardTitle>
+                  <CardTitle className="text-base">Consultation</CardTitle>
                   <p className="text-xs text-muted-foreground flex items-center gap-1.5 mt-0.5">
                     <Calendar className="size-3.5" />
-                    {enc.date} • {enc.specialty}
+                    {new Date(enc.scheduled_at).toLocaleDateString()}
                   </p>
                 </div>
               </div>
 
-              <Badge variant="success" className="text-xs">
+              <Badge variant="outline" className="text-xs">
                 {enc.status}
               </Badge>
             </CardHeader>
@@ -51,27 +73,17 @@ export default function EncountersPage() {
               <div>
                 <p className="font-bold text-muted-foreground mb-1">Chief Complaint & HPI:</p>
                 <p className="text-foreground font-medium bg-white dark:bg-[#0b1f24] p-3 rounded-lg border border-[#e2e8f0] dark:border-[#1e3a40]">
-                  {enc.chiefComplaint}
+                  {enc.chief_complaint || "Not recorded"}
                 </p>
               </div>
 
-              {enc.voiceTranscriptEn && (
-                <div className="p-3 rounded-lg bg-[#06635d]/5 dark:bg-[#14b8a6]/10 border border-[#06635d]/20 space-y-1">
-                  <p className="font-bold text-[#06635d] dark:text-[#14b8a6] flex items-center gap-1 text-[11px]">
-                    <Mic className="size-3.5" />
-                    Voice Intake Summary:
-                  </p>
-                  <p className="text-foreground italic">"{enc.voiceTranscriptEn}"</p>
-                </div>
-              )}
-
               <div>
                 <p className="font-bold text-muted-foreground mb-1">Diagnosis & Clinical Summary:</p>
-                <p className="text-foreground font-medium">{enc.diagnosisSummary}</p>
+                <p className="text-foreground font-medium">{enc.clinical_summary || enc.notes || "No clinical summary available yet."}</p>
               </div>
 
               <Link href={`/encounters/${enc.id}/chat`}>
-                <Button variant="outline" size="sm" className="gap-1.5">
+                <Button variant="outline" size="sm" className="gap-1.5 mt-2">
                   <Bot className="size-3.5" />
                   Ask the AI Assistant about this visit
                 </Button>

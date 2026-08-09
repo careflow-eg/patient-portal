@@ -131,7 +131,6 @@ export function VoiceRecorderWidget() {
                 <CheckCircle2 className="size-4 text-emerald-600 dark:text-emerald-400" />
                 Extracted Chief Complaint:
               </span>
-              <span className="text-[11px] text-muted-foreground">Confidence: 98.6%</span>
             </div>
 
             <p className="text-xs font-medium text-foreground italic">"{chiefComplaintEn}"</p>
