@@ -39,7 +39,7 @@ export default function DashboardPage() {
           <div className="space-y-2 max-w-xl">
             <Badge className="bg-white/20 text-white border-none text-xs gap-1">
               <ShieldCheck className="size-3.5" />
-              <span>HIPAA Encrypted Patient Record</span>
+              <span>Sample Patient Record</span>
             </Badge>
             <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight">
               Patient Medical Vault & Insights

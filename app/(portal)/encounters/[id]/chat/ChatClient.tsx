@@ -51,7 +51,17 @@ export function ChatClient({ id }: { id: string }) {
 
     try {
       const priorTurns = messages.map((m) => ({ role: m.role, content: m.content }));
-      const response = await assistantService.queryAssistant(id, query, priorTurns);
+      // Mocked for demo mode
+      const response = await new Promise<{ answer: string; citations: any[] }>((resolve) =>
+        setTimeout(
+          () =>
+            resolve({
+              answer: "This is a sample patient record demo. The AI assistant is disabled in the demo environment.",
+              citations: [],
+            }),
+          1000
+        )
+      );
       setMessages((prev) => [
         ...prev,
         {

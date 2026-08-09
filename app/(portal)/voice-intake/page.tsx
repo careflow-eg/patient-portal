@@ -23,7 +23,7 @@ export default function VoiceIntakePage() {
 
         <Badge variant="outline" className="gap-1.5 text-xs text-[#06635d] dark:text-[#14b8a6] border-[#06635d]/30 self-start">
           <ShieldCheck className="size-4" />
-          <span>HIPAA Encrypted Stream</span>
+          <span>Sample Record</span>
         </Badge>
       </div>
 
