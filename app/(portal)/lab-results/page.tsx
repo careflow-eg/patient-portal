@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import { FlaskConical, CheckCircle2, AlertTriangle, Filter, ShieldCheck } from "lucide-react";
 import { usePatientStore } from "@/stores/usePatientStore";
 import { Card } from "@/components/ui/card";
@@ -8,10 +8,14 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
 export default function LabResultsPage() {
-  const { labResults } = usePatientStore();
+  const { labResults, fetchLivePatientData, isLoading } = usePatientStore();
   const [selectedCategory, setSelectedCategory] = React.useState<string>("ALL");
 
-  const categories = ["ALL", "METABOLIC", "RENAL", "LIPID"];
+  useEffect(() => {
+    fetchLivePatientData();
+  }, [fetchLivePatientData]);
+
+  const categories = ["ALL", "HEMATOLOGY", "METABOLIC", "RENAL", "LIPID"];
 
   const filteredLabs =
     selectedCategory === "ALL"
@@ -24,16 +28,16 @@ export default function LabResultsPage() {
         <div>
           <h1 className="text-2xl font-extrabold text-foreground flex items-center gap-2">
             <FlaskConical className="size-7 text-[#06635d] dark:text-[#14b8a6]" />
-            Normalized SI Unit Lab Reports
+            Laboratory Tests & Blood Work Summary
           </h1>
           <p className="text-xs text-muted-foreground mt-1">
-            Automatically normalized lab values with standardized SI reference ranges
+            OCR extracted lab panel values with standardized reference ranges and abnormal flags (HIGH/LOW)
           </p>
         </div>
 
         <Badge variant="outline" className="gap-1 text-xs text-[#06635d] dark:text-[#14b8a6] border-[#06635d]/30">
           <ShieldCheck className="size-3.5" />
-          <span>UCUM Normalized</span>
+          <span>UCUM Standardized</span>
         </Badge>
       </div>
 
@@ -52,6 +56,12 @@ export default function LabResultsPage() {
           </Button>
         ))}
       </div>
+
+      {isLoading && (
+        <div className="p-8 text-center text-xs text-muted-foreground animate-pulse">
+          Loading laboratory test results from Supabase vault...
+        </div>
+      )}
 
       {/* Lab Results Grid */}
       <div className="space-y-3">

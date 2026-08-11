@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import { ScanLine, FileText, Download, Eye, Sparkles, ShieldCheck, CheckCircle2 } from "lucide-react";
 import { usePatientStore } from "@/stores/usePatientStore";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
@@ -8,7 +8,11 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
 export default function RadiologyPage() {
-  const { radiologyScans } = usePatientStore();
+  const { radiologyScans, fetchLivePatientData, isLoading } = usePatientStore();
+
+  useEffect(() => {
+    fetchLivePatientData();
+  }, [fetchLivePatientData]);
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -28,6 +32,12 @@ export default function RadiologyPage() {
           <span>MedGemma & MedSAM2 Evaluated</span>
         </Badge>
       </div>
+
+      {isLoading && (
+        <div className="p-8 text-center text-xs text-muted-foreground animate-pulse">
+          Loading radiology scans and AI vision impressions from Supabase vault...
+        </div>
+      )}
 
       <div className="space-y-6">
         {radiologyScans.map((scan) => (

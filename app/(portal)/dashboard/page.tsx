@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import Link from "next/link";
 import {
   Heart,
@@ -24,8 +24,12 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
 export default function DashboardPage() {
-  const { patientName, mrn, age, gender, bloodType, allergies, vitals, insights, labResults, radiologyScans } =
+  const { patientName, mrn, age, gender, bloodType, allergies, vitals, insights, labResults, radiologyScans, fetchLivePatientData } =
     usePatientStore();
+
+  useEffect(() => {
+    fetchLivePatientData();
+  }, [fetchLivePatientData]);
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -37,13 +41,13 @@ export default function DashboardPage() {
           <div className="space-y-2 max-w-xl">
             <Badge className="bg-white/20 text-white border-none text-xs gap-1">
               <ShieldCheck className="size-3.5" />
-              <span>HIPAA Encrypted Patient Record</span>
+              <span>HIPAA Encrypted Patient Vault</span>
             </Badge>
             <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight">
-              Patient Medical Vault & Insights
+              Patient Medical Records & AI Insights
             </h1>
             <p className="text-sm text-emerald-100 leading-relaxed">
-              Welcome, <span className="font-bold text-white">{patientName}</span> ({gender}, {age} yrs) • MRN: <span className="font-mono">{mrn}</span>
+              Welcome back, <span className="font-bold text-white">{patientName}</span> ({gender}, {age} yrs) • MRN: <span className="font-mono">{mrn}</span>
             </p>
 
             <div className="flex flex-wrap gap-2 pt-2 text-xs">
@@ -141,10 +145,6 @@ export default function DashboardPage() {
             >
               <div className="flex items-center justify-between font-bold">
                 <span className="text-foreground">{ins.title}</span>
-                {/* P2-6 FIX: Proper 3-way severity mapping.
-                    Previously INFO and ATTENTION both mapped to "warning" — misleading.
-                    INFO = informational/neutral (outline), ATTENTION = caution (warning),
-                    NORMAL = positive/stable (success) */}
                 <Badge
                   variant={
                     ins.severity === "NORMAL"

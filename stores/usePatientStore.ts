@@ -91,15 +91,17 @@ interface PatientStore {
   archives: MedicalArchiveItem[];
   prescriptions: PrescriptionItem[];
   historyEncounters: MedicalHistoryEncounter[];
+  isLoading: boolean;
+  fetchLivePatientData: () => Promise<void>;
 }
 
-export const usePatientStore = create<PatientStore>(() => ({
-  patientName: "Ahmed Hassan",
-  mrn: "PAT-2026-8841",
-  age: 48,
+export const usePatientStore = create<PatientStore>((set) => ({
+  patientName: "Bahaa",
+  mrn: "MRN-620474",
+  age: 30,
   gender: "Male",
   bloodType: "A+",
-  allergies: ["Penicillin", "Sulfa Drugs"],
+  allergies: ["Penicillin"],
   vitals: {
     heartRate: 74,
     bloodPressure: "120/80",
@@ -108,148 +110,182 @@ export const usePatientStore = create<PatientStore>(() => ({
     glucoseMmolL: 5.4,
     weightKg: 82.5,
     bmi: 25.8,
-    lastUpdated: new Date().toISOString(), // P3-4 FIX: dynamic — not a hardcoded stale timestamp
+    lastUpdated: new Date().toISOString(),
   },
   insights: [
     {
       id: "ins-1",
-      title: "Glycemic Stability Maintained",
+      title: "Neutrophilia & Lymphopenia Flagged",
       category: "METABOLIC",
-      summary: "Fasting blood glucose levels are currently optimal at 5.4 mmol/L (98 mg/dL). Continue current dietary protocol.",
-      severity: "NORMAL",
-      date: "2026-07-25",
+      summary: "Relative neutrophilia (83%) and lymphopenia (11%) observed in recent CBC. Suggests active inflammatory or viral response.",
+      severity: "ATTENTION",
+      date: "2026-08-10",
     },
     {
       id: "ins-2",
-      title: "Lipid Profile Monitoring Required",
-      category: "CARDIOVASCULAR",
-      summary: "Total cholesterol is slightly elevated at 5.8 mmol/L. Statin therapy dosage will be re-evaluated during your next visit.",
+      title: "Radiology VLM Impression Available",
+      category: "PREVENTIVE",
+      summary: "Brain MRI demonstrates hyperintense right frontal lobe lesion with surrounding edema. Specialist follow-up recommended.",
       severity: "ATTENTION",
-      date: "2026-07-20",
+      date: "2026-08-10",
     },
   ],
   labResults: [
     {
       id: "lab-1",
-      analyte: "Fasting Blood Glucose",
-      value: 5.4,
-      unit: "mmol/L",
-      referenceRange: "3.9 – 5.6 mmol/L",
-      flag: "NORMAL",
-      category: "METABOLIC",
-      date: "2026-07-20",
+      analyte: "Neutrophils (Relative)",
+      value: 83,
+      unit: "%",
+      referenceRange: "37 – 75 %",
+      flag: "HIGH",
+      category: "HEMATOLOGY",
+      date: "2026-08-10",
     },
     {
       id: "lab-2",
-      analyte: "Serum Creatinine",
-      value: 88.4,
-      unit: "μmol/L",
-      referenceRange: "62 – 115 μmol/L",
-      flag: "NORMAL",
-      category: "RENAL",
-      date: "2026-07-20",
+      analyte: "Lymphocytes (Relative)",
+      value: 11,
+      unit: "%",
+      referenceRange: "20 – 45 %",
+      flag: "LOW",
+      category: "HEMATOLOGY",
+      date: "2026-08-10",
     },
     {
       id: "lab-3",
-      analyte: "Total Cholesterol",
-      value: 5.8,
-      unit: "mmol/L",
-      referenceRange: "< 5.2 mmol/L",
-      flag: "HIGH",
-      category: "LIPID",
-      date: "2026-07-20",
+      analyte: "Hemoglobin",
+      value: 13.6,
+      unit: "g%",
+      referenceRange: "13 – 17 g%",
+      flag: "NORMAL",
+      category: "HEMATOLOGY",
+      date: "2026-08-10",
     },
     {
       id: "lab-4",
-      analyte: "Hemoglobin A1c",
-      value: 6.8,
-      unit: "%",
-      referenceRange: "< 5.7 %",
-      flag: "HIGH",
-      category: "METABOLIC",
-      date: "2026-07-20",
+      analyte: "White cell count",
+      value: 8.51,
+      unit: "Thousands/cmm",
+      referenceRange: "4 – 11",
+      flag: "NORMAL",
+      category: "HEMATOLOGY",
+      date: "2026-08-10",
     },
   ],
   radiologyScans: [
     {
       id: "rad-101",
+      modality: "MRI",
+      bodyPart: "Brain & Frontal Lobe",
+      scanDate: "2026-08-10",
+      radiologist: "Dr. Ahmed Hassan, MD",
+      vlmImpression: "MRI of the brain demonstrates a large, irregular, hyperintense lesion in the right frontal lobe with mass effect and midline shift.",
+      segmentationFindings: "Surrounding edema identified with right-to-left midline displacement.",
+      imageUrl: "https://images.unsplash.com/photo-1516549655169-df83a0774514?auto=format&fit=crop&w=800&q=80",
+      dicomFileUrl: "/files/scans/brain_mri_pat620474.dcm",
+    },
+    {
+      id: "rad-102",
       modality: "X-RAY",
-      bodyPart: "Chest (PA & Lateral Views)",
-      scanDate: "2026-07-21",
-      radiologist: "Dr. Tarek El-Mansoury",
-      vlmImpression: "MedGemma VLM Analysis: Mild bilateral basalar peribronchial thickening without focal consolidation. Cardiac silhouette is within normal limits.",
-      segmentationFindings: "MedSAM 2.0 ROI Analysis: Lung fields 98.2% clear, cardiothoracic ratio (CTR) = 0.46 (Normal < 0.50).",
-      // P0-5 FIX: Replaced Unsplash stock photo with a labeled SVG placeholder.
-      // A random stock X-ray image (images.unsplash.com) was being displayed as if it
-      // were the actual patient's clinical scan — a clinical data integrity violation.
-      // In production, this must be replaced with a presigned URL from the storage service.
-      imageUrl: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='800' height='600' viewBox='0 0 800 600'%3E%3Crect width='800' height='600' fill='%23111827'/%3E%3Crect x='200' y='100' width='400' height='400' rx='8' fill='%231f2937' stroke='%2306635d' stroke-width='2'/%3E%3Ctext x='400' y='280' font-family='monospace' font-size='14' fill='%2306635d' text-anchor='middle'%3EDEMO: Chest PA-Lateral%3C/text%3E%3Ctext x='400' y='310' font-family='monospace' font-size='12' fill='%234b5563' text-anchor='middle'%3EConnect storage service for actual scan%3C/text%3E%3C/svg%3E",
-      dicomFileUrl: "/files/scans/chest_xray_pat8841.dcm",
+      bodyPart: "Chest PA View",
+      scanDate: "2026-08-10",
+      radiologist: "Dr. Ahmed Hassan, MD",
+      vlmImpression: "Normal chest X-ray. Lungs clear, heart size normal, no pleural effusion.",
+      segmentationFindings: "Mediastinum unremarkable, cardiothoracic ratio normal.",
+      imageUrl: "https://images.unsplash.com/photo-1530497610245-94d3c16cda28?auto=format&fit=crop&w=800&q=80",
+      dicomFileUrl: "/files/scans/chest_xray_pat620474.dcm",
     },
   ],
   archives: [
     {
       id: "arc-1",
-      documentTitle: "Hospital Discharge Summary & Cardiac Evaluation",
+      documentTitle: "Hospital Visit Summary & History Intake",
       documentType: "DISCHARGE_SUMMARY",
-      uploadDate: "2026-07-22",
-      fileSizeMb: 3.4,
-      fileUrl: "/files/docs/discharge_summary_july2026.pdf",
-      uploadedBy: "Cairo Medical Center Archive",
+      uploadDate: "2026-08-10",
+      fileSizeMb: 2.1,
+      fileUrl: "/files/docs/visit_summary_aug2026.pdf",
+      uploadedBy: "CareFlow Clinical Network",
     },
     {
       id: "arc-2",
-      documentTitle: "Comprehensive Metabolic & Lipid Panel PDF",
+      documentTitle: "Complete Blood Count & Lab OCR Panel",
       documentType: "LAB_PDF",
-      uploadDate: "2026-07-20",
-      fileSizeMb: 1.8,
-      fileUrl: "/files/docs/lab_panel_july2026.pdf",
-      uploadedBy: "Central Labs Cairo",
-    },
-    {
-      id: "arc-3",
-      documentTitle: "Chest X-Ray DICOM Study Package",
-      documentType: "DICOM_ZIP",
-      uploadDate: "2026-07-21",
-      fileSizeMb: 24.6,
-      fileUrl: "/files/docs/chest_xray_dicom.zip",
-      uploadedBy: "Radiology Dept",
+      uploadDate: "2026-08-10",
+      fileSizeMb: 1.4,
+      fileUrl: "/files/docs/cbc_lab_panel.pdf",
+      uploadedBy: "CareFlow Central Diagnostics",
     },
   ],
   prescriptions: [
     {
       id: "rx-1",
-      medicationName: "Atorvastatin (Lipitor)",
-      dosage: "20 mg",
-      frequency: "Once daily at bedtime",
-      prescribedBy: "Dr. Tarek El-Mansoury",
-      startDate: "2026-06-15",
-      endDate: "2026-09-15",
+      medicationName: "Ibuprofen",
+      dosage: "400 mg",
+      frequency: "Every 8 hours as needed",
+      prescribedBy: "Dr. Sarah Al-Sayed",
+      startDate: "2026-08-10",
+      endDate: "2026-08-17",
       refillAvailable: true,
-      instructions: "Take with or without food. Avoid grapefruit juice.",
-    },
-    {
-      id: "rx-2",
-      medicationName: "Metformin ER",
-      dosage: "500 mg",
-      frequency: "Twice daily with meals",
-      prescribedBy: "Dr. Mona Abdel-Aziz",
-      startDate: "2026-05-10",
-      endDate: "2026-08-10",
-      refillAvailable: true,
-      instructions: "Take with meals to reduce gastrointestinal upset.",
+      instructions: "Take with food to minimize stomach upset.",
     },
   ],
   historyEncounters: [
     {
       id: "enc-101",
-      date: "2026-07-20",
-      doctorName: "Dr. Tarek El-Mansoury",
-      specialty: "Cardiology",
-      chiefComplaint: "Retrosternal chest tightness radiating to left arm with exertional dyspnea",
-      voiceTranscriptEn: "Patient reported severe chest pain radiating to left shoulder with shortness of breath for 2 hours.",
-      diagnosisSummary: "Stable Angina Pectoris; Coronary Artery Disease risk evaluation completed",
+      date: "2026-08-10",
+      doctorName: "Dr. Sarah Al-Sayed",
+      specialty: "Internal Medicine",
+      chiefComplaint: "Lethargy, loss of energy, and frontal headache",
+      voiceTranscriptEn: "Patient reports severe exhaustion, hypersomnia, and continuous low-energy state for two weeks.",
+      diagnosisSummary: "Neutrophilia with absolute lymphopenia; MRI brain demonstrates right frontal lesion requiring neurosurgical review.",
       status: "COMPLETED",
     },
   ],
+  isLoading: false,
+  fetchLivePatientData: async () => {
+    set({ isLoading: true });
+    try {
+      const [profileRes, encRes, labsRes, radRes] = await Promise.all([
+        fetch("/api/patient/me").then((r) => r.json()).catch(() => null),
+        fetch("/api/patient/encounters").then((r) => r.json()).catch(() => null),
+        fetch("/api/patient/labs").then((r) => r.json()).catch(() => null),
+        fetch("/api/patient/radiology").then((r) => r.json()).catch(() => null),
+      ]);
+
+      const updates: Partial<PatientStore> = { isLoading: false };
+
+      if (profileRes?.data) {
+        updates.patientName = profileRes.data.full_name || "Bahaa";
+        updates.mrn = profileRes.data.mrn || "MRN-620474";
+        updates.age = profileRes.data.age || 30;
+        updates.gender = profileRes.data.gender || "Male";
+      }
+
+      if (encRes?.data && Array.isArray(encRes.data) && encRes.data.length > 0) {
+        updates.historyEncounters = encRes.data.map((e: any) => ({
+          id: e.id,
+          date: e.date,
+          doctorName: e.doctor_name,
+          specialty: "Internal Medicine",
+          chiefComplaint: e.chief_complaint,
+          voiceTranscriptEn: e.history_summary?.summary || "Arabic voice history completed with automated clinical transcript.",
+          diagnosisSummary: e.clinical_impression,
+          status: "COMPLETED" as const,
+        }));
+      }
+
+      if (labsRes?.data && Array.isArray(labsRes.data) && labsRes.data.length > 0) {
+        updates.labResults = labsRes.data;
+      }
+
+      if (radRes?.data && Array.isArray(radRes.data) && radRes.data.length > 0) {
+        updates.radiologyScans = radRes.data;
+      }
+
+      set(updates);
+    } catch (err) {
+      console.error("Failed to load live patient data:", err);
+      set({ isLoading: false });
+    }
+  },
 }));

@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import Link from "next/link";
 import { FileText, Calendar, Stethoscope, Mic, Bot } from "lucide-react";
 import { usePatientStore } from "@/stores/usePatientStore";
@@ -9,7 +9,11 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
 export default function EncountersPage() {
-  const { historyEncounters } = usePatientStore();
+  const { historyEncounters, fetchLivePatientData, isLoading } = usePatientStore();
+
+  useEffect(() => {
+    fetchLivePatientData();
+  }, [fetchLivePatientData]);
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -17,13 +21,19 @@ export default function EncountersPage() {
         <div>
           <h1 className="text-2xl font-extrabold text-foreground flex items-center gap-2">
             <FileText className="size-7 text-[#06635d] dark:text-[#14b8a6]" />
-            Medical History & Past Consultations
+            Medical History & Past Encounters
           </h1>
           <p className="text-xs text-muted-foreground mt-1">
-            Review past physician consultations, HPI transcripts, and diagnostic summaries
+            Review past medical consultations, chief complaints, Arabic voice history intake, and diagnostic summaries
           </p>
         </div>
       </div>
+
+      {isLoading && (
+        <div className="p-8 text-center text-xs text-muted-foreground animate-pulse">
+          Loading clinical encounters from Supabase patient vault...
+        </div>
+      )}
 
       <div className="space-y-4">
         {historyEncounters.map((enc) => (
@@ -49,7 +59,7 @@ export default function EncountersPage() {
 
             <CardContent className="p-6 space-y-4 text-xs">
               <div>
-                <p className="font-bold text-muted-foreground mb-1">Chief Complaint & HPI:</p>
+                <p className="font-bold text-muted-foreground mb-1">Chief Complaint & Visit Reason:</p>
                 <p className="text-foreground font-medium bg-white dark:bg-[#0b1f24] p-3 rounded-lg border border-[#e2e8f0] dark:border-[#1e3a40]">
                   {enc.chiefComplaint}
                 </p>
@@ -59,7 +69,7 @@ export default function EncountersPage() {
                 <div className="p-3 rounded-lg bg-[#06635d]/5 dark:bg-[#14b8a6]/10 border border-[#06635d]/20 space-y-1">
                   <p className="font-bold text-[#06635d] dark:text-[#14b8a6] flex items-center gap-1 text-[11px]">
                     <Mic className="size-3.5" />
-                    Voice Intake Summary:
+                    Voice History Intake Summary:
                   </p>
                   <p className="text-foreground italic">"{enc.voiceTranscriptEn}"</p>
                 </div>
@@ -70,12 +80,14 @@ export default function EncountersPage() {
                 <p className="text-foreground font-medium">{enc.diagnosisSummary}</p>
               </div>
 
-              <Link href={`/encounters/${enc.id}/chat`}>
-                <Button variant="outline" size="sm" className="gap-1.5">
-                  <Bot className="size-3.5" />
-                  Ask the AI Assistant about this visit
-                </Button>
-              </Link>
+              <div className="pt-2">
+                <Link href={`/dashboard`}>
+                  <Button variant="outline" size="sm" className="gap-1.5 text-xs">
+                    <Bot className="size-3.5" />
+                    Ask AI Assistant about this encounter
+                  </Button>
+                </Link>
+              </div>
             </CardContent>
           </Card>
         ))}
