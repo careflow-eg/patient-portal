@@ -5,6 +5,15 @@ import { ThemeProvider } from "@/components/providers/ThemeProvider";
 export const metadata: Metadata = {
   title: "CareFlow Patient Care Portal",
   description: "AI-powered patient medical vault, health insights, lab results, radiology scans, and prescriptions.",
+  icons: {
+    icon: [
+      { url: "/favicon.ico" },
+      { url: "/icon.png", type: "image/png" },
+      { url: "/assets/img/favicon.png", type: "image/png" },
+    ],
+    shortcut: "/favicon.ico",
+    apple: "/assets/img/apple-touch-icon.png",
+  },
 };
 
 export default function RootLayout({
