@@ -13,14 +13,10 @@ export async function GET(request: Request) {
       .single();
 
     if (error || !patient) {
-      return NextResponse.json({
-        id: patientId,
-        full_name: "Bahaa",
-        mrn: "MRN-620474",
-        age: 30,
-        gender: "Male",
-        contact_number: "+201001234567",
-      });
+      return NextResponse.json(
+        { error: "Patient record not found in database" },
+        { status: 404 }
+      );
     }
 
     return NextResponse.json({
@@ -29,7 +25,7 @@ export async function GET(request: Request) {
     });
   } catch (error) {
     return NextResponse.json(
-      { error: "Failed to fetch patient profile" },
+      { error: "Failed to fetch patient profile from database" },
       { status: 500 }
     );
   }

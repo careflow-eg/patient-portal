@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FolderArchive, FileText, Download, ShieldCheck, HardDrive, Loader2 } from "lucide-react";
 import { usePatientStore } from "@/stores/usePatientStore";
 import { Card, CardContent } from "@/components/ui/card";
@@ -9,25 +9,19 @@ import { Button } from "@/components/ui/button";
 import { downloadArchiveFile } from "@/services/archiveService";
 
 export default function ArchivePage() {
-  const { archives } = usePatientStore();
-  // Track per-document download loading state
+  const { archives, fetchLivePatientData, isLoading } = usePatientStore();
   const [downloading, setDownloading] = useState<Record<string, boolean>>({});
 
-  /**
-   * P0-4 FIX: Downloads are now routed through an authenticated API endpoint that
-   * generates presigned S3 URLs (60-second TTL). Static file paths like
-   * "/files/docs/discharge_summary.pdf" were accessible to any unauthenticated user
-   * with the URL — a HIPAA violation exposing PHI.
-   *
-   * P3-2 FIX: Download button is now fully wired up with loading state and error handling.
-   */
+  useEffect(() => {
+    fetchLivePatientData();
+  }, [fetchLivePatientData]);
+
   const handleDownload = async (docId: string, fileKey: string, filename: string) => {
     setDownloading((prev) => ({ ...prev, [docId]: true }));
     try {
       await downloadArchiveFile(fileKey, filename);
     } catch (err) {
       console.error("Download failed:", err);
-      // In production: surface this error to the user via a toast notification
       alert("Download failed. Please try again or contact support.");
     } finally {
       setDownloading((prev) => ({ ...prev, [docId]: false }));
@@ -43,7 +37,7 @@ export default function ArchivePage() {
             Medical Document Vault &amp; Archive
           </h1>
           <p className="text-xs text-muted-foreground mt-1">
-            Access and download all official medical PDFs, lab scans, DICOM packages, and clinical summaries
+            Access and download all official medical PDFs, lab scans, DICOM packages, and clinical summaries from database
           </p>
         </div>
 
@@ -52,6 +46,12 @@ export default function ArchivePage() {
           <span>AES-256 Encrypted Archive</span>
         </Badge>
       </div>
+
+      {isLoading && (
+        <div className="p-8 text-center text-xs text-muted-foreground animate-pulse">
+          Loading archived medical documents from Supabase vault...
+        </div>
+      )}
 
       <div className="space-y-3">
         {archives.map((doc) => (
@@ -93,7 +93,7 @@ export default function ArchivePage() {
                 ) : (
                   <>
                     <Download className="size-3.5" />
-                    <span>Download PDF</span>
+                    <span>Download Document</span>
                   </>
                 )}
               </Button>
