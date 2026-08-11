@@ -1,5 +1,5 @@
-// API client with JWT auth and auto-refresh
-import axios, { AxiosInstance, InternalAxiosRequestConfig, AxiosError } from "axios";
+// API client without automatic JWT Authorization header injection
+import axios, { AxiosInstance, AxiosError } from "axios";
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://api.careflowai.health";
 const API_PREFIX = "/api/v1";
@@ -12,49 +12,23 @@ export const api: AxiosInstance = axios.create({
   timeout: 30000,
 });
 
-// Request interceptor — inject Bearer token
-api.interceptors.request.use(
-  (config: InternalAxiosRequestConfig) => {
-    const token =
-      typeof window !== "undefined"
-        ? localStorage.getItem("access_token")
-        : null;
-    if (token && config.headers) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => Promise.reject(error)
-);
-
-// Response interceptor — handle 401 and token refresh
+// Response interceptor — handle API errors gracefully
 api.interceptors.response.use(
   (response) => response,
   async (error: AxiosError) => {
     if (error.response?.status === 401) {
-      // Clear tokens and redirect to login
-      if (typeof window !== "undefined") {
-        localStorage.removeItem("access_token");
-        localStorage.removeItem("refresh_token");
-        localStorage.removeItem("careflow_user");
-        window.location.href = "/login";
-      }
+      console.warn("API request returned 401 Unauthorized:", error.config?.url);
     }
     return Promise.reject(error);
   }
 );
 
-// Helper for file uploads (multipart/form-data)
+// Helper for file uploads (multipart/form-data) without Bearer header
 export function createFormDataApi() {
-  const token =
-    typeof window !== "undefined"
-      ? localStorage.getItem("access_token")
-      : null;
   return axios.create({
     baseURL: `${BASE_URL.replace(/\/$/, "")}${API_PREFIX}`,
     headers: {
       "Content-Type": "multipart/form-data",
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
     },
     timeout: 300000, // 5 min for large file uploads
   });
