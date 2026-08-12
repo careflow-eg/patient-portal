@@ -1,61 +1,58 @@
-# 🏥 CareFlow Patient Care Portal (`patient-portal`)
-
-**Version**: 0.1.0 (Next.js 16 App Router)  
-**Design System**: CareFlow Glassmorphic UI (Teal `#06635d` / Navy `#112344` / Dark `#021418` / Accent `#14b8a6`)  
-**Repository Path**: `e:/care flow/patient-portal`
-
----
-
-## 🌟 Key Features
-
-1. **Conversational Egyptian Arabic Voice AI Intake**:
-   - Real-time animated audio wave visualizer (`VoiceRecorderWidget.tsx`).
-   - Turn-by-turn Arabic/English speech transcript log.
-   - Red flag symptom detection tags (e.g., radiating retrosternal chest pain).
-   - Instant chief complaint extraction and submission to `doctor-portal`.
-
-2. **Normalized SI Unit Laboratory Results**:
-   - Automatic unit normalization (Pint UCUM engine).
-   - Clinical reference ranges and flag indicators (`NORMAL`, `HIGH`, `LOW`).
-   - Analyte category filters (`METABOLIC`, `RENAL`, `LIPID`, `HEMATOLOGY`).
-
-3. **Digital Prescriptions & Pharmacy Refills**:
-   - Active medication list with dosages and intake frequencies.
-   - Prescribing physician info and validity period.
-   - One-click pharmacy refill request action.
-
-4. **Doctor Appointments & Booking**:
-   - Specialist search with hospital location and rating tags.
-   - Instant booking confirmation.
-
-5. **Bilingual Arabic / English & Dark Mode Support**:
-   - One-click language switcher (`ar` / `en`) with dynamic RTL layout directionality.
-   - Seamless dark/light theme switching with glassmorphism card highlights.
+<div align="center">
+  <h1>🏥 CareFlow Patient Portal</h1>
+  <p><em>Patient-facing care portal — voice intake, medical history, and encounter tracking</em></p>
+  <p>
+    <img src="https://img.shields.io/badge/Next.js-16-000000?logo=next.js&logoColor=white" />
+    <img src="https://img.shields.io/badge/TypeScript-5.x-3178C6?logo=typescript&logoColor=white" />
+    <img src="https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black" />
+    <img src="https://github.com/careflow-eg/patient-portal/actions/workflows/ci.yml/badge.svg" />
+  </p>
+</div>
 
 ---
 
-## 🛠️ Technology Stack
+## Overview
 
-- **Framework**: Next.js 16.2 (App Router) + React 19
-- **Styling**: Tailwind CSS v4 + PostCSS
-- **Icons**: Lucide React (`lucide-react`)
-- **State Management**: Zustand 5
-- **UI Primitives**: Radix UI (Avatar, Badge, Dialog, Progress, Tabs)
-- **Animations**: Framer Motion 12
+The **Patient Portal** provides patients with a self-service interface for voice-based medical history intake, encounter tracking, and accessing their clinical data. Built with a glassmorphic, mobile-first UI design using CareFlow's teal/navy design system.
 
----
+## Key Features
 
-## 🚀 Getting Started
+- **Voice Intake** — Browser-based voice recording for medical history collection
+- **Encounter History** — View past encounters and clinical summaries
+- **Responsive Design** — Mobile-first glassmorphic UI
+- **Secure Auth** — JWT-based patient authentication
 
-```bash
-# Navigate to repository directory
-cd "e:/care flow/patient-portal"
+## Project Structure
 
-# Install dependencies
-npm install
-
-# Start local development server
-npm run dev
+```
+patient-portal/
+├── .github/workflows/    # CI/CD pipeline
+├── app/                  # Next.js App Router
+│   └── (portal)/         # Protected portal pages
+├── components/           # UI components
+│   ├── ui/               # Base components
+│   ├── voice/            # Voice recorder widget
+│   └── providers/        # Context providers
+├── lib/                  # API client, utilities
+├── services/             # API service layers
+├── stores/               # Zustand state
+├── types/                # TypeScript interfaces
+├── public/               # Static assets
+├── .env.example          # Environment template
+└── package.json          # Dependencies
 ```
 
-Visit `http://localhost:3000` to interact with the patient portal.
+## Quick Start
+
+```bash
+git clone https://github.com/careflow-eg/patient-portal.git
+cd patient-portal
+cp .env.example .env
+npm install
+npm run dev
+# Open http://localhost:3001
+```
+
+## License
+
+Proprietary — CareFlow © 2026
